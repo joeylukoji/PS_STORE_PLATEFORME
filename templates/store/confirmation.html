@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Commande confirmée{% endblock %}
+{% block content %}
+<div class="container section narrow">
+  <div class="card confirm">
+    <div class="confirm-icon" aria-hidden="true">✓</div>
+    <h1>Merci {{ order.first_name }} !</h1>
+    <p>Votre commande a bien été enregistrée.</p>
+    <p class="order-ref">N° de commande : <strong id="ref">{{ order.reference }}</strong>
+      <button type="button" class="btn btn-sm" data-copy="#ref">Copier</button></p>
+    <p class="muted small">Conservez ce numéro : il vous permet de suivre votre commande avec votre e-mail ({{ order.email }}).</p>
+  </div>
+  <div class="card">
+    <h2 class="h3">Récapitulatif</h2>
+    {% include "store/_order_summary.html" %}
+    <p><strong>Réception :</strong> {{ order.get_delivery_mode_display }}{% if order.delivery_mode == 'livraison' %} — {{ order.address }}, {{ order.city }}{% endif %}</p>
+    <p><strong>Statut :</strong> {{ order.get_status_display }}</p>
+  </div>
+  <p class="center"><a href="{% url 'store:tracking' %}" class="btn">Suivre ma commande</a> <a href="{% url 'store:home' %}" class="btn btn-ghost">Retour à l'accueil</a></p>
+</div>
+{% endblock %}

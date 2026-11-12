@@ -1,0 +1,40 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Rapports{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <h1>Ventes par période</h1>
+  <form method="get" class="filters">
+    {% for f in form %}<label>{{ f.label }} {{ f }}</label>{% endfor %}
+    <button class="btn btn-primary">Afficher</button>
+  </form>
+  {% if form.errors %}<div class="alert alert-error">{{ form.non_field_errors }}{% for f in form %}{{ f.errors }}{% endfor %}</div>{% endif %}
+
+  {% if start %}
+  <p class="muted">Période : du {{ start|date:"d/m/Y" }} au {{ end|date:"d/m/Y" }} — commandes non annulées.</p>
+  <div class="kpis">
+    <div class="card kpi"><span class="muted">Chiffre d'affaires</span><strong>{{ total|floatformat:2 }} $</strong></div>
+    <div class="card kpi"><span class="muted">Commandes</span><strong>{{ count }}</strong></div>
+    <div class="card kpi"><span class="muted">Panier moyen</span><strong>{{ average|floatformat:2 }} $</strong></div>
+  </div>
+  <div class="bo-grid">
+    <section class="card">
+      <h2 class="h3">Ventes par jour</h2>
+      {% if by_day %}
+        <ul class="bars">
+          {% for d in by_day %}
+            <li><span class="bar-label">{{ d.day|date:"d/m" }}</span><span class="bar" style="--w: {{ d.pct }}%"></span><span class="bar-value">{{ d.total|floatformat:2 }} $ · {{ d.count }}</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}<p class="empty">Aucune vente sur la période.</p>{% endif %}
+    </section>
+    <section class="card">
+      <h2 class="h3">Meilleures ventes</h2>
+      <table class="table">
+        <thead><tr><th>Produit</th><th class="num">Qté</th><th class="num">CA</th></tr></thead>
+        <tbody>{% for t in top %}<tr><td>{{ t.product_name }}</td><td class="num">{{ t.qty }}</td><td class="num">{{ t.revenue|floatformat:2 }} $</td></tr>{% empty %}<tr><td colspan="3" class="empty">—</td></tr>{% endfor %}</tbody>
+      </table>
+    </section>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

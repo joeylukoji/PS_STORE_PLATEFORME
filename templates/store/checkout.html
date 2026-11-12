@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Validation de la commande{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1>Validation de la commande</h1>
+  <div class="cart-layout">
+    <form method="post" class="card form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+      {% if not user.is_authenticated %}
+        <p class="alert alert-info">Vous avez un compte ? <a href="{% url 'store:login' %}?next={{ request.path|urlencode }}">Connectez-vous</a> pour retrouver cette commande dans votre espace. Vous pouvez aussi commander sans compte.</p>
+      {% endif %}
+      <h2 class="h3">Vos coordonnées</h2>
+      <div class="grid-2">
+        {% include "_field.html" with field=form.first_name %}
+        {% include "_field.html" with field=form.last_name %}
+        {% include "_field.html" with field=form.email %}
+        {% include "_field.html" with field=form.phone %}
+      </div>
+      <h2 class="h3">Mode de réception</h2>
+      <div class="field {% if form.delivery_mode.errors %}has-error{% endif %}">
+        <div class="radio-cards">
+          {% for radio in form.delivery_mode %}
+            <label class="radio-card">{{ radio.tag }} <span>{{ radio.choice_label }}</span></label>
+          {% endfor %}
+        </div>
+        {% for e in form.delivery_mode.errors %}<small class="error">{{ e }}</small>{% endfor %}
+      </div>
+      <div id="delivery-fields" class="grid-2">
+        {% include "_field.html" with field=form.address %}
+        {% include "_field.html" with field=form.city %}
+      </div>
+      {% include "_field.html" with field=form.notes %}
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Confirmer la commande</button>
+      <p class="muted small">Aucun paiement en ligne : le règlement s'effectue à la livraison ou au retrait.</p>
+    </form>
+    <aside class="card summary">
+      <h2 class="h3">Votre panier</h2>
+      <ul class="summary-list">
+        {% for i in items %}<li><span>{{ i.quantity }} × {{ i.product.name }}</span><span>{{ i.subtotal|floatformat:2 }} $</span></li>{% endfor %}
+      </ul>
+      <div class="summary-line"><span>Total</span><strong class="price big">{{ total|floatformat:2 }} $</strong></div>
+      <a href="{% url 'store:cart' %}">Modifier le panier</a>
+    </aside>
+  </div>
+</div>
+{% endblock %}

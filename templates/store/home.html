@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static store_tags %}
+{% block title %}Accueil{% endblock %}
+{% block body_class %}store home{% endblock %}
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/orbit.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="{% static 'js/orbit-carousel.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+<h1 class="sr-only">PS STORE — jeux, consoles et accessoires gaming</h1>
+{% include "store/_orbit_hero.html" %}
+
+<section class="usp">
+  <div class="container usp-grid">
+    <div class="usp-item">{% include "_icon.html" with name="box" %}<div><strong>Stock vérifié</strong><span>Disponibilité en temps réel</span></div></div>
+    <div class="usp-item">{% include "_icon.html" with name="store" %}<div><strong>Retrait en magasin</strong><span>Commande prête à récupérer</span></div></div>
+    <div class="usp-item">{% include "_icon.html" with name="truck" %}<div><strong>Livraison</strong><span>À l'adresse de votre choix</span></div></div>
+    <div class="usp-item">{% include "_icon.html" with name="wallet" %}<div><strong>Paiement à la réception</strong><span>Aucun paiement en ligne requis</span></div></div>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="section-head">
+    <div><p class="eyebrow dark">Catégories</p><h2>Explorer par univers</h2></div>
+  </div>
+  <div class="cat-grid">
+    {% for c in nav_categories %}
+      <a href="{{ c.get_absolute_url }}" class="cat-card">
+        <img src="{% category_photo c %}" alt="" loading="lazy">
+        <span class="cat-card-label"><strong>{{ c.name }}</strong><span>Voir les produits →</span></span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section container pt-0">
+  <div class="section-head">
+    <div><p class="eyebrow dark">Nouveautés</p><h2>Derniers arrivages</h2></div>
+    <a href="{% url 'store:products' %}?tri=recent" class="link-arrow">Tout le catalogue →</a>
+  </div>
+  {% if latest %}
+    <div class="product-grid">{% for p in latest %}{% include "store/_product_card.html" %}{% endfor %}</div>
+  {% else %}
+    <p class="empty">Le catalogue est en cours de préparation.</p>
+  {% endif %}
+</section>
+
+<section class="split">
+  <div class="split-media"><img src="{% static 'img/ps5-gradient.jpg' %}" alt="Console PlayStation 5 et sa manette" loading="lazy"></div>
+  <div class="split-body">
+    <p class="eyebrow">Consoles</p>
+    <h2>PlayStation 5 et éditions spéciales</h2>
+    <p>Consoles neuves ou d'occasion, avec l'état et la garantie clairement indiqués sur chaque fiche produit.</p>
+    <a href="{% url 'store:category' 'consoles' %}" class="btn btn-light">Voir les consoles</a>
+  </div>
+</section>
+
+<section class="section container">
+  <div class="duo">
+    <a href="{% url 'store:category' 'accessoires' %}" class="banner" style="--img: url('{% static 'img/vr.jpg' %}')">
+      <span class="banner-body"><span class="eyebrow">Accessoires</span><strong>Casques VR, manettes et casques audio</strong><span class="link-arrow">Découvrir →</span></span>
+    </a>
+    <a href="{% url 'store:category' 'jeux' %}?platform=XBOX" class="banner" style="--img: url('{% static 'img/xbox-series.jpg' %}')">
+      <span class="banner-body"><span class="eyebrow">Jeux Xbox</span><strong>Les titres compatibles Xbox</strong><span class="link-arrow">Découvrir →</span></span>
+    </a>
+  </div>
+  <div class="platform-strip">
+    <span class="muted">Jeux par plateforme</span>
+    <a href="{% url 'store:category' 'jeux' %}?platform=PS5" class="chip">PS5</a>
+    <a href="{% url 'store:category' 'jeux' %}?platform=PS4" class="chip">PS4</a>
+    <a href="{% url 'store:category' 'jeux' %}?platform=XBOX" class="chip">Xbox</a>
+  </div>
+</section>
+
+<section class="cta" style="--img: url('{% static 'img/esport.jpg' %}')">
+  <div class="container cta-body">
+    <h2>Vous avez déjà commandé ?</h2>
+    <p>Suivez l'avancement de votre commande avec son numéro et votre adresse e-mail.</p>
+    <a href="{% url 'store:tracking' %}" class="btn btn-light btn-lg">Suivre ma commande</a>
+  </div>
+</section>
+{% endblock %}

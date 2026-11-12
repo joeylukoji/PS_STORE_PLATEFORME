@@ -1,0 +1,50 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Stock{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <h1>Stock</h1>
+  <div class="bo-grid">
+    <form method="post" class="card form" novalidate>
+      {% csrf_token %}
+      <h2 class="h3">Nouveau mouvement</h2>
+      {% include "_field.html" with field=form.product %}
+      <div class="grid-2">
+        {% include "_field.html" with field=form.kind %}
+        {% include "_field.html" with field=form.quantity %}
+      </div>
+      {% include "_field.html" with field=form.reason %}
+      <button class="btn btn-primary" type="submit">Enregistrer</button>
+    </form>
+
+    <section class="card">
+      <h2 class="h3">Niveaux de stock</h2>
+      <div class="table-wrap scroll-y"><table class="table">
+        <thead><tr><th>Produit</th><th class="num">Stock</th><th class="num">Seuil</th></tr></thead>
+        <tbody>
+        {% for p in products %}
+          <tr><td><a href="?produit={{ p.pk }}">{{ p.name }}</a></td>
+            <td class="num"><span class="stock {% if p.stock == 0 %}out{% elif p.is_low_stock %}low{% else %}ok{% endif %}">{{ p.stock }}</span></td>
+            <td class="num">{{ p.alert_threshold }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="section-head"><h2 class="h3">Historique des mouvements</h2>{% if request.GET.produit %}<a href="{% url 'backoffice:stock' %}">Tous les produits</a>{% endif %}</div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Date</th><th>Produit</th><th>Type</th><th class="num">Qté</th><th class="num">Stock après</th><th>Motif</th><th>Auteur</th></tr></thead>
+      <tbody>
+      {% for m in page %}
+        <tr><td>{{ m.created_at|date:"d/m/Y H:i" }}</td><td>{{ m.product.name }}</td>
+          <td><span class="mv mv-{{ m.kind }}">{{ m.get_kind_display }}</span></td>
+          <td class="num">{% if m.kind == 'in' %}+{% else %}−{% endif %}{{ m.quantity }}</td><td class="num">{{ m.stock_after }}</td>
+          <td>{{ m.reason }}</td><td>{{ m.author.username|default:"Système" }}</td></tr>
+      {% empty %}<tr><td colspan="7" class="empty">Aucun mouvement.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+    {% include "_pagination.html" %}
+  </section>
+</div>
+{% endblock %}

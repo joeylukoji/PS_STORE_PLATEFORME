@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Créer un compte{% endblock %}
+{% block content %}
+<div class="container section auth">
+  <form method="post" class="card form auth-card" novalidate>
+    {% csrf_token %}
+    <h1 class="h2">Créer un compte</h1>
+    <p class="muted">Suivez toutes vos commandes au même endroit.</p>
+    {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="grid-2">
+      {% include "_field.html" with field=form.first_name %}
+      {% include "_field.html" with field=form.last_name %}
+    </div>
+    {% include "_field.html" with field=form.email %}
+    {% include "_field.html" with field=form.password1 %}
+    {% include "_field.html" with field=form.password2 %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary btn-lg btn-block" type="submit">Créer mon compte</button>
+    <p class="auth-alt">Déjà inscrit ? <a href="{% url 'store:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Se connecter</a></p>
+  </form>
+</div>
+{% endblock %}

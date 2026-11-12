@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="container section auth">
+  <form method="post" class="card form auth-card" novalidate>
+    {% csrf_token %}
+    <h1 class="h2">Connexion</h1>
+    <p class="muted">Accédez à vos commandes et commandez plus vite.</p>
+    {% if form.non_field_errors %}<div class="alert alert-error">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>{% endif %}
+    {% include "_field.html" with field=form.username %}
+    {% include "_field.html" with field=form.password %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary btn-lg btn-block" type="submit">Se connecter</button>
+    <p class="auth-alt">Pas encore de compte ? <a href="{% url 'store:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Créer un compte</a></p>
+  </form>
+</div>
+{% endblock %}

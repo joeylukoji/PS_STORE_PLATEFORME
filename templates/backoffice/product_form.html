@@ -1,0 +1,53 @@
+{% extends "backoffice/base.html" %}
+{% block title %}{% if product %}{{ product.name }}{% else %}Nouveau produit{% endif %}{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <nav class="breadcrumb"><a href="{% url 'backoffice:products' %}">Produits</a> / {% if product %}{{ product.name }}{% else %}Nouveau{% endif %}</nav>
+  <div class="section-head">
+    <h1>{% if product %}Modifier le produit{% else %}Nouveau produit{% endif %}</h1>
+    {% if product %}<span>Stock actuel : <strong>{{ product.stock }}</strong> · <a href="{% url 'backoffice:stock' %}?produit={{ product.pk }}">Mouvement de stock</a>{% if product.is_published %} · <a href="{{ product.get_absolute_url }}" target="_blank" rel="noopener">Voir ↗</a>{% endif %}</span>{% endif %}
+  </div>
+  <div class="bo-grid">
+    <form method="post" class="card form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+      {% include "_field.html" with field=form.name %}
+      <div class="grid-2">
+        {% include "_field.html" with field=form.sku %}
+        {% include "_field.html" with field=form.category %}
+        {% include "_field.html" with field=form.platform %}
+        {% include "_field.html" with field=form.condition %}
+        {% include "_field.html" with field=form.price %}
+        {% include "_field.html" with field=form.alert_threshold %}
+      </div>
+      {% include "_field.html" with field=form.warranty %}
+      {% include "_field.html" with field=form.description %}
+      {% include "_field.html" with field=form.attributes_text %}
+      {% include "_field.html" with field=form.is_published %}
+      {% if not product %}<p class="muted small">Le stock initial se saisit ensuite via un mouvement d'entrée.</p>{% endif %}
+      <button class="btn btn-primary" type="submit">Enregistrer</button>
+    </form>
+
+    {% if product %}
+    <section class="card">
+      <h2 class="h3">Photos</h2>
+      <div class="img-grid">
+        {% for img in product.images.all %}
+          <figure>
+            <img src="{{ img.image.url }}" alt="{{ img.alt }}">
+            <form method="post" action="{% url 'backoffice:image_delete' img.pk %}" data-confirm="Supprimer cette image ?">{% csrf_token %}<button class="link-danger small">Supprimer</button></form>
+          </figure>
+        {% empty %}<p class="muted">Aucune photo.</p>{% endfor %}
+      </div>
+      <form method="post" action="{% url 'backoffice:image_add' product.pk %}" enctype="multipart/form-data" class="form">
+        {% csrf_token %}
+        {% include "_field.html" with field=image_form.image %}
+        {% include "_field.html" with field=image_form.alt %}
+        <small class="muted">JPG, PNG ou WEBP, 3 Mo maximum.</small>
+        <button class="btn" type="submit">Ajouter la photo</button>
+      </form>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

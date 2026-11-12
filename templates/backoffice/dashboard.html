@@ -1,0 +1,41 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <h1>Tableau de bord</h1>
+  <div class="kpis">
+    <a class="card kpi" href="{% url 'backoffice:orders' %}"><span class="muted">Commandes du jour</span><strong>{{ today_count }}</strong></a>
+    <a class="card kpi" href="{% url 'backoffice:orders' %}?statut=recue"><span class="muted">À traiter</span><strong>{{ pending_count }}</strong></a>
+    <a class="card kpi {% if low_stock_count %}kpi-warn{% endif %}" href="{% url 'backoffice:stock' %}"><span class="muted">Alertes de stock</span><strong>{{ low_stock_count }}</strong></a>
+    <div class="card kpi"><span class="muted">Produits publiés</span><strong>{{ product_count }}</strong></div>
+  </div>
+
+  <div class="bo-grid">
+    <section class="card">
+      <div class="section-head"><h2 class="h3">Commandes récentes</h2><a href="{% url 'backoffice:orders' %}">Toutes →</a></div>
+      {% if recent_orders %}
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Référence</th><th>Date</th><th>Client</th><th class="num">Total</th><th>Statut</th></tr></thead>
+        <tbody>
+        {% for o in recent_orders %}
+          <tr><td><a href="{% url 'backoffice:order_detail' o.reference %}">{{ o.reference }}</a></td><td>{{ o.created_at|date:"d/m H:i" }}</td><td>{{ o.customer_name }}</td><td class="num">{{ o.total|floatformat:2 }} $</td><td><span class="status status-{{ o.status }}">{{ o.get_status_display }}</span></td></tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}<p class="empty">Aucune commande pour le moment.</p>{% endif %}
+    </section>
+
+    <section class="card">
+      <div class="section-head"><h2 class="h3">Ruptures et stocks faibles</h2><a href="{% url 'backoffice:stock' %}">Stock →</a></div>
+      {% if low_stock %}
+      <ul class="alert-list">
+        {% for p in low_stock %}
+          <li><a href="{% url 'backoffice:stock' %}?produit={{ p.pk }}">{{ p.name }}</a>
+            <span class="stock {% if p.stock == 0 %}out{% else %}low{% endif %}">{% if p.stock == 0 %}Rupture{% else %}{{ p.stock }} / seuil {{ p.alert_threshold }}{% endif %}</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="empty">Aucune alerte de stock.</p>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

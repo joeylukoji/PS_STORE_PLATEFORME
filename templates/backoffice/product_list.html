@@ -1,0 +1,41 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Produits{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <div class="section-head"><h1>Produits</h1><a href="{% url 'backoffice:product_new' %}" class="btn btn-primary">+ Nouveau produit</a></div>
+  <form method="get" class="filters">
+    <input type="search" name="q" value="{{ q }}" placeholder="Nom ou référence" aria-label="Rechercher">
+    <select name="statut" aria-label="Statut">
+      <option value="">Tous</option>
+      <option value="publie" {% if request.GET.statut == 'publie' %}selected{% endif %}>Publiés</option>
+      <option value="masque" {% if request.GET.statut == 'masque' %}selected{% endif %}>Masqués</option>
+    </select>
+    <button class="btn">Filtrer</button>
+  </form>
+  <div class="card table-wrap">
+    <table class="table">
+      <thead><tr><th>Nom</th><th>Catégorie</th><th>Plateforme</th><th class="num">Prix</th><th class="num">Stock</th><th>Visibilité</th><th></th></tr></thead>
+      <tbody>
+      {% for p in page %}
+        <tr>
+          <td><a href="{% url 'backoffice:product_edit' p.pk %}">{{ p.name }}</a>{% if p.sku %}<br><small class="muted">{{ p.sku }}</small>{% endif %}</td>
+          <td>{{ p.category }}</td><td>{{ p.get_platform_display|default:"—" }}</td>
+          <td class="num">{{ p.price|floatformat:2 }} $</td>
+          <td class="num"><span class="stock {% if p.stock == 0 %}out{% elif p.is_low_stock %}low{% else %}ok{% endif %}">{{ p.stock }}</span></td>
+          <td>{% if p.is_published %}<span class="status status-terminee">Publié</span>{% else %}<span class="status status-annulee">Masqué</span>{% endif %}</td>
+          <td>
+            <form method="post" action="{% url 'backoffice:product_toggle' p.pk %}">{% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="btn btn-sm">{% if p.is_published %}Masquer{% else %}Publier{% endif %}</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="empty">Aucun produit.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "_pagination.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Commande {{ order.reference }}{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <nav class="breadcrumb"><a href="{% url 'backoffice:orders' %}">Commandes</a> / {{ order.reference }}</nav>
+  <div class="section-head">
+    <h1>Commande {{ order.reference }}</h1>
+    <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+  </div>
+  <div class="bo-grid">
+    <section class="card">
+      <h2 class="h3">Articles</h2>
+      {% include "store/_order_summary.html" %}
+    </section>
+    <section class="card">
+      <h2 class="h3">Client</h2>
+      <dl class="specs">
+        <dt>Nom</dt><dd>{{ order.customer_name }}</dd>
+        <dt>E-mail</dt><dd><a href="mailto:{{ order.email }}">{{ order.email }}</a></dd>
+        <dt>Téléphone</dt><dd><a href="tel:{{ order.phone }}">{{ order.phone }}</a></dd>
+        <dt>Réception</dt><dd>{{ order.get_delivery_mode_display }}</dd>
+        {% if order.delivery_mode == 'livraison' %}<dt>Adresse</dt><dd>{{ order.address }}, {{ order.city }}</dd>{% endif %}
+        {% if order.notes %}<dt>Remarques</dt><dd>{{ order.notes|linebreaksbr }}</dd>{% endif %}
+        <dt>Passée le</dt><dd>{{ order.created_at|date:"d/m/Y H:i" }}</dd>
+      </dl>
+
+      {% if order.allowed_transitions %}
+      <h2 class="h3">Faire évoluer le statut</h2>
+      <form method="post" class="form" data-confirm-cancel>
+        {% csrf_token %}
+        <div class="field"><label for="status">Nouveau statut</label>
+          <select name="status" id="status">{% for code, label in order.allowed_transitions %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="comment">Commentaire (facultatif)</label><input type="text" name="comment" id="comment" maxlength="255"></div>
+        <button class="btn btn-primary" type="submit">Mettre à jour</button>
+        <small class="muted">L'annulation remet automatiquement les articles en stock.</small>
+      </form>
+      {% else %}<p class="muted">Commande clôturée : aucune transition possible.</p>{% endif %}
+    </section>
+  </div>
+  <section class="card">
+    <h2 class="h3">Historique</h2>
+    <ol class="history">
+      {% for h in order.history.all %}
+        <li><strong>{{ h.get_new_status_display }}</strong>{% if h.old_status %} <span class="muted">(depuis {{ h.get_old_status_display }})</span>{% endif %}
+          — {{ h.created_at|date:"d/m/Y H:i" }} par {{ h.author.username|default:"le client" }}{% if h.comment %} · « {{ h.comment }} »{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </section>
+</div>
+{% endblock %}

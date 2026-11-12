@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Mon compte{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-head">
+    <div><p class="eyebrow dark">Mon compte</p><h1>Bonjour {{ request.user.first_name|default:request.user.username }}</h1></div>
+    <form method="post" action="{% url 'store:logout' %}">{% csrf_token %}<button class="btn" type="submit">Se déconnecter</button></form>
+  </div>
+
+  <div class="cart-layout">
+    <section class="card">
+      <h2 class="h3">Mes commandes</h2>
+      {% if orders %}
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Référence</th><th>Date</th><th class="num">Articles</th><th class="num">Total</th><th>Statut</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+          <tr>
+            <td><a href="{% url 'store:account_order' o.reference %}">{{ o.reference }}</a></td>
+            <td>{{ o.created_at|date:"d/m/Y" }}</td>
+            <td class="num">{{ o.lines.all|length }}</td>
+            <td class="num">{{ o.total|floatformat:2 }} $</td>
+            <td><span class="status status-{{ o.status }}">{{ o.get_status_display }}</span></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}
+        <div class="empty">
+          <p>Vous n'avez pas encore passé de commande.</p>
+          <a href="{% url 'store:products' %}" class="btn btn-primary">Découvrir le catalogue</a>
+        </div>
+      {% endif %}
+    </section>
+
+    <aside>
+      <form method="post" class="card form" novalidate>
+        {% csrf_token %}
+        <h2 class="h3">Mes informations</h2>
+        {% include "_field.html" with field=form.first_name %}
+        {% include "_field.html" with field=form.last_name %}
+        <div class="field"><label>E-mail</label><input type="email" value="{{ request.user.email }}" disabled></div>
+        <button class="btn btn-primary" type="submit">Enregistrer</button>
+        <a href="{% url 'store:password' %}" class="small">Changer mon mot de passe</a>
+      </form>
+    </aside>
+  </div>
+</div>
+{% endblock %}

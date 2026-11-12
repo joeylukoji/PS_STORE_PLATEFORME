@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load store_tags %}
+{% block title %}Panier{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1>Mon panier</h1>
+  {% if items %}
+  <div class="cart-layout">
+    <div class="cart-items">
+      {% for i in items %}
+      <div class="card cart-row {% if not i.available %}warn{% endif %}">
+        <a href="{{ i.product.get_absolute_url }}" class="cart-thumb">
+          {% if i.product.main_image %}<img src="{{ i.product.main_image.image.url }}" alt="">{% else %}<img src="{% category_photo i.product.category 'ph' %}" alt="">{% endif %}
+        </a>
+        <div class="cart-info">
+          <a href="{{ i.product.get_absolute_url }}"><strong>{{ i.product.name }}</strong></a>
+          <p class="muted small">{{ i.product.price|floatformat:2 }} $ / unité</p>
+          {% if not i.available %}<p class="stock out small">Seulement {{ i.product.stock }} disponible(s) — ajustez la quantité.</p>{% endif %}
+        </div>
+        <form method="post" action="{% url 'store:cart_update' i.product.pk %}" class="qty" data-qty data-autosubmit>
+          {% csrf_token %}
+          <button type="button" data-step="-1" aria-label="Diminuer">−</button>
+          <label class="sr-only" for="q{{ i.product.pk }}">Quantité</label>
+          <input id="q{{ i.product.pk }}" type="number" name="quantity" value="{{ i.quantity }}" min="0" max="{{ i.product.stock }}">
+          <button type="button" data-step="1" aria-label="Augmenter">+</button>
+        </form>
+        <strong class="cart-sub">{{ i.subtotal|floatformat:2 }} $</strong>
+        <form method="post" action="{% url 'store:cart_remove' i.product.pk %}">
+          {% csrf_token %}<button class="link-danger" type="submit" aria-label="Retirer {{ i.product.name }}">Retirer</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    <aside class="card summary">
+      <h2 class="h3">Récapitulatif</h2>
+      <div class="summary-line"><span>Total</span><strong class="price big">{{ total|floatformat:2 }} $</strong></div>
+      <p class="muted small">Paiement à la livraison ou au retrait. Frais de livraison confirmés par l'équipe.</p>
+      {% if all_available %}
+        <a href="{% url 'store:checkout' %}" class="btn btn-primary btn-block btn-lg">Passer la commande</a>
+      {% else %}
+        <button class="btn btn-block btn-lg" disabled>Ajustez les quantités</button>
+      {% endif %}
+      <a href="{% url 'store:products' %}" class="btn btn-ghost btn-block">Continuer mes achats</a>
+    </aside>
+  </div>
+  {% else %}
+    <div class="empty">
+      <p>Votre panier est vide.</p>
+      <a href="{% url 'store:products' %}" class="btn btn-primary">Découvrir le catalogue</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

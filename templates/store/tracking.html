@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Suivi de commande{% endblock %}
+{% block content %}
+<div class="container section narrow">
+  <h1>Suivre ma commande</h1>
+  <form method="post" class="card form" novalidate>
+    {% csrf_token %}
+    <div class="grid-2">
+      {% include "_field.html" with field=form.reference %}
+      {% include "_field.html" with field=form.email %}
+    </div>
+    <button class="btn btn-primary" type="submit">Rechercher</button>
+  </form>
+
+  {% if order %}
+  <div class="card">
+    <div class="section-head">
+      <h2 class="h3">Commande {{ order.reference }}</h2>
+      <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+    </div>
+    <p class="muted small">Passée le {{ order.created_at|date:"d/m/Y à H:i" }}</p>
+    {% if order.status == 'annulee' %}
+      <p class="alert alert-error">Cette commande a été annulée.</p>
+    {% else %}
+      <ol class="timeline">
+        {% for code, label in steps %}
+          <li class="{% for h in order.history.all %}{% if h.new_status == code %}done{% endif %}{% endfor %} {% if order.status == code %}current{% endif %}">{{ label }}</li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+    {% include "store/_order_summary.html" %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

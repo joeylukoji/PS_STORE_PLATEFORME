@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load backoffice_tags %}
+{% block body_class %}bo{% endblock %}
+{% block header %}
+<header class="bo-header">
+  <div class="bo-header-inner">
+    <a href="{% url 'backoffice:dashboard' %}" class="logo">PS<span>Gestion</span></a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="bo-nav" aria-label="Menu">☰</button>
+    <nav id="bo-nav" class="bo-nav cat-nav">
+      {% with u=request.resolver_match.url_name %}
+      <a href="{% url 'backoffice:dashboard' %}" {% if u == 'dashboard' %}aria-current="page"{% endif %}>Tableau de bord</a>
+      <a href="{% url 'backoffice:orders' %}" {% if 'order' in u %}aria-current="page"{% endif %}>Commandes</a>
+      <a href="{% url 'backoffice:stock' %}" {% if u == 'stock' %}aria-current="page"{% endif %}>Stock</a>
+      {% if request.user|admin_user %}
+        <a href="{% url 'backoffice:products' %}" {% if 'product' in u %}aria-current="page"{% endif %}>Produits</a>
+        <a href="{% url 'backoffice:reports' %}" {% if u == 'reports' %}aria-current="page"{% endif %}>Rapports</a>
+        <a href="{% url 'backoffice:users' %}" {% if u == 'users' %}aria-current="page"{% endif %}>Utilisateurs</a>
+      {% endif %}
+      {% endwith %}
+      <span class="bo-user">
+        <a href="{% url 'store:home' %}" target="_blank" rel="noopener">Voir la boutique ↗</a>
+        <span class="muted">{{ request.user.get_full_name|default:request.user.username }}</span>
+        <form method="post" action="{% url 'backoffice:logout' %}">{% csrf_token %}<button class="btn btn-sm">Déconnexion</button></form>
+      </span>
+    </nav>
+  </div>
+</header>
+{% endblock %}
+{% block footer %}{% endblock %}

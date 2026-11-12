@@ -1,0 +1,111 @@
+{% load static %}
+{# Carrousel orbital (adaptation HTML/JS du composant Dish Orbit Carousel). #}
+<div class="dsh-trk" data-orbit>
+  <div class="dsh-root" role="region" aria-roledescription="carousel" aria-label="Univers PS STORE" tabindex="0">
+    <img class="dsh-bd" src="{% static 'img/hero-setup.jpg' %}" alt="" width="1200" height="900">
+    <div class="dsh-dim"></div>
+    <div class="dsh-wash"></div>
+
+    <div class="dsh-canvas">
+      <svg class="dsh-arc" viewBox="0 0 960 520" aria-hidden="true"><path style="opacity:.34"></path></svg>
+
+      <div class="dsh-top">
+        <button type="button" class="dsh-btn" data-toggle-search aria-controls="search-bar" aria-expanded="false" aria-label="Rechercher">
+          <svg class="dsh-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        </button>
+        <a class="dsh-btn" href="{% url 'store:products' %}" aria-label="Tout le catalogue">
+          <svg class="dsh-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg>
+        </a>
+      </div>
+
+      <div class="dsh-pager" role="tablist" aria-label="Choisir un univers">
+        {% for it in orbit_items %}
+          <button type="button" role="tab" class="dsh-btn dsh-dot" data-go="{{ forloop.counter0 }}" aria-label="{{ it.title }} {{ it.subtitle }}"><i></i></button>
+        {% endfor %}
+      </div>
+
+      <div class="dsh-plates">
+        {% for it in orbit_items %}
+          <div class="dsh-orbit">
+            <img src="{% static it.image %}" alt="{{ it.alt }}" width="245" height="245" draggable="false">
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="dsh-head" aria-live="polite">
+        {% for it in orbit_items %}
+          <div class="dsh-hd">
+            <p class="dsh-eye">#{{ forloop.counter }} {{ it.eyebrow }}</p>
+            <h2 style="margin:0;font:inherit">
+              <span class="dsh-t1" data-fit="56,330,0.56">{{ it.title }}</span>
+              <span class="dsh-t2" data-fit="62,320,0.64">{{ it.subtitle }}</span>
+            </h2>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="dsh-acts">
+        <a class="dsh-btn" data-act="url" href="{{ orbit_items.0.url }}">
+          <svg class="dsh-ico dsh-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5v17l14-8.5z"/></svg>Voir les produits
+        </a>
+        <a class="dsh-btn" href="{% url 'store:tracking' %}">
+          <svg class="dsh-ico dsh-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5 3 15h18zM3 18h18v2.5H3z"/></svg>Suivre une commande
+        </a>
+      </div>
+
+      <div class="dsh-card">
+        <div class="dsh-tabs" role="tablist" aria-label="Détails">
+          <button type="button" role="tab" class="dsh-btn dsh-tab" data-tab="overview" aria-selected="true">Aperçu</button>
+          <button type="button" role="tab" class="dsh-btn dsh-tab" data-tab="ingredients" aria-selected="false">Points clés</button>
+        </div>
+        <div class="dsh-bodies">
+          {% for it in orbit_items %}
+            <div class="dsh-body">
+              <div class="dsh-rate">
+                <div class="dsh-badge" style="background: {{ it.accent }}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/></svg>
+                </div>
+                <span class="dsh-num" aria-label="{{ it.count }} article{{ it.count|pluralize }} disponible{{ it.count|pluralize }}">{{ it.count }}</span>
+              </div>
+              <p class="dsh-chef">{{ it.label }}</p>
+              <p class="dsh-kit">PS STORE · retrait ou livraison</p>
+              <p class="dsh-desc">{{ it.description }}</p>
+              <ul class="dsh-ing">{% for h in it.highlights %}<li>{{ h }}</li>{% endfor %}</ul>
+              <div class="dsh-react">
+                <a class="dsh-btn dsh-like" href="{{ it.url }}">
+                  <svg class="dsh-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>{{ it.count }} article{{ it.count|pluralize }}
+                </a>
+                <a class="dsh-btn dsh-meh" href="{{ it.url }}" aria-label="Voir {{ it.label }}">
+                  <svg class="dsh-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="dsh-strip">
+        <button type="button" class="dsh-btn dsh-arrow" data-step="-1" aria-label="Univers précédent">
+          <svg viewBox="0 0 12 16" aria-hidden="true"><path d="M11 0v16L0 8z"/></svg>
+        </button>
+        <div class="dsh-win">
+          <div class="dsh-track">
+            {% for it in orbit_items %}
+              <div class="dsh-th">
+                <button type="button" class="dsh-btn" data-go="{{ forloop.counter0 }}">
+                  <img src="{% static it.image %}" alt="" width="56" height="56" draggable="false">
+                  <span>{{ it.label }}</span>
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <button type="button" class="dsh-btn dsh-arrow" data-step="1" aria-label="Univers suivant">
+          <svg viewBox="0 0 12 16" aria-hidden="true"><path d="M1 0v16l11-8z"/></svg>
+        </button>
+      </div>
+    </div>
+    <p class="dsh-sr" aria-live="polite"></p>
+  </div>
+</div>
+{{ orbit_items|json_script:"orbit-data" }}

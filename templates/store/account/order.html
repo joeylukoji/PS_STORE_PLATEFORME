@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Commande {{ order.reference }}{% endblock %}
+{% block content %}
+<div class="container section narrow">
+  <nav class="breadcrumb"><a href="{% url 'store:account' %}">Mon compte</a> / {{ order.reference }}</nav>
+  <div class="card">
+    <div class="section-head">
+      <h1 class="h2">Commande {{ order.reference }}</h1>
+      <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+    </div>
+    <p class="muted small">Passée le {{ order.created_at|date:"d/m/Y à H:i" }} · {{ order.get_delivery_mode_display }}{% if order.delivery_mode == 'livraison' %} — {{ order.address }}, {{ order.city }}{% endif %}</p>
+    {% if order.status == 'annulee' %}
+      <p class="alert alert-error">Cette commande a été annulée.</p>
+    {% else %}
+      <ol class="timeline">
+        {% for code, label in steps %}
+          <li class="{% for h in order.history.all %}{% if h.new_status == code %}done{% endif %}{% endfor %} {% if order.status == code %}current{% endif %}">{{ label }}</li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+    {% include "store/_order_summary.html" %}
+  </div>
+</div>
+{% endblock %}

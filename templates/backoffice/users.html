@@ -1,0 +1,44 @@
+{% extends "backoffice/base.html" %}
+{% block title %}Utilisateurs{% endblock %}
+{% block content %}
+<div class="bo-container">
+  <h1>Utilisateurs et rôles</h1>
+  <div class="bo-grid">
+    <section class="card table-wrap">
+      <table class="table">
+        <thead><tr><th>Identifiant</th><th>Nom</th><th>Rôle et accès</th></tr></thead>
+        <tbody>
+        {% for u, role in accounts %}
+          <tr>
+            <td>{{ u.username }}{% if u.is_superuser %} <small class="muted">(super-admin)</small>{% endif %}</td>
+            <td>{{ u.get_full_name|default:"—" }}</td>
+            <td>
+              {% if u == request.user or u.is_superuser %}
+                {{ role|default:"Aucun" }}{% if not u.is_active %} · inactif{% endif %}
+              {% else %}
+              <form method="post" action="{% url 'backoffice:user_role' u.pk %}" class="inline-form">
+                {% csrf_token %}
+                <select name="role" aria-label="Rôle de {{ u.username }}">
+                  <option value="Employé" {% if role == 'Employé' %}selected{% endif %}>Employé</option>
+                  <option value="Administrateur" {% if role == 'Administrateur' %}selected{% endif %}>Administrateur</option>
+                  <option value="" {% if not role %}selected{% endif %}>Aucun</option>
+                </select>
+                <label class="check"><input type="checkbox" name="is_active" {% if u.is_active %}checked{% endif %}> Actif</label>
+                <button class="btn btn-sm">Enregistrer</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    <form method="post" class="card form" novalidate>
+      {% csrf_token %}
+      <h2 class="h3">Nouveau compte</h2>
+      {% for f in form %}{% include "_field.html" with field=f %}{% endfor %}
+      <button class="btn btn-primary" type="submit">Créer le compte</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

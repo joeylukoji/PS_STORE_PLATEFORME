@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{% if category %}{{ category.name }}{% elif q %}Recherche « {{ q }} »{% else %}Catalogue{% endif %}{% endblock %}
+{% block content %}
+<div class="container section">
+  <nav class="breadcrumb" aria-label="Fil d'Ariane"><a href="{% url 'store:home' %}">Accueil</a> / {% if category %}{{ category.name }}{% else %}Catalogue{% endif %}</nav>
+  <h1>{% if category %}{{ category.name }}{% elif q %}Résultats pour « {{ q }} »{% else %}Tout le catalogue{% endif %}</h1>
+
+  <form class="filters" method="get" data-autosubmit>
+    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+    <fieldset class="chips" aria-label="Plateforme">
+      <legend class="sr-only">Plateforme</legend>
+      <label class="chip {% if not platform %}active{% endif %}"><input type="radio" name="platform" value="" {% if not platform %}checked{% endif %}>Toutes</label>
+      {% for code, label in platforms %}
+        <label class="chip {% if platform == code %}active{% endif %}"><input type="radio" name="platform" value="{{ code }}" {% if platform == code %}checked{% endif %}>{{ label }}</label>
+      {% endfor %}
+    </fieldset>
+    <label class="check"><input type="checkbox" name="dispo" value="1" {% if request.GET.dispo %}checked{% endif %}> En stock uniquement</label>
+    <label>Trier
+      <select name="tri">
+        <option value="">Nom</option>
+        <option value="prix" {% if sort == 'prix' %}selected{% endif %}>Prix croissant</option>
+        <option value="-prix" {% if sort == '-prix' %}selected{% endif %}>Prix décroissant</option>
+        <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Nouveautés</option>
+      </select>
+    </label>
+    <noscript><button class="btn">Filtrer</button></noscript>
+    {% if platform or request.GET.dispo or sort %}<a class="reset" href="?{% if q %}q={{ q|urlencode }}{% endif %}">Réinitialiser</a>{% endif %}
+  </form>
+
+  <p class="muted">{{ page.paginator.count }} article{{ page.paginator.count|pluralize }}</p>
+  {% if page.object_list %}
+    <div class="product-grid">{% for p in page %}{% include "store/_product_card.html" %}{% endfor %}</div>
+    {% include "_pagination.html" %}
+  {% else %}
+    <div class="empty">
+      <p>Aucun article ne correspond à votre recherche.</p>
+      <a href="{% url 'store:products' %}" class="btn">Voir tout le catalogue</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
